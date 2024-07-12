@@ -55,6 +55,9 @@ public class ProductServer {
 
     private final Socket socket;
     private String status;
+    private PrintWriter out;
+    private Response response;
+
 
     public SocketClient(Socket socket) {
       this.socket = socket;
@@ -69,7 +72,7 @@ public class ProductServer {
 
           // 클라이언트에게 리스트 보내기
 
-          PrintWriter out = new PrintWriter(socket.getOutputStream());
+          out = new PrintWriter(socket.getOutputStream());
           Response response = new Response(status, productList);
           String responseJson = mapper.writeValueAsString(response);
 
@@ -105,7 +108,6 @@ public class ProductServer {
             break;
           } else {
             System.out.println("클라이언트가 잘못된 요청을 하였습니다.");
-            status = "fail";
             continue;
           }
 
@@ -115,6 +117,7 @@ public class ProductServer {
 
       } catch (IOException e) {
         e.printStackTrace();
+        status = "fail";
       } finally {
         try {
           socket.close();

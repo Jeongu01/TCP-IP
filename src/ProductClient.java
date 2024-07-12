@@ -42,7 +42,6 @@ public class ProductClient {
         String status = response.getStatus();
         if (status.equals("fail")) {
           System.out.println("예기치 못한 오류가 발생했습니다.");
-          break;
         }
 
         ArrayList<Product> arrayList = response.getData();
