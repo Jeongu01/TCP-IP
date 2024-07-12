@@ -214,7 +214,7 @@ public class ProductClient {
   }
 
   private static void showMenu() {
-    System.out.println("메뉴: 1. Creat | 2. Update | 3. Delete | 4. Exit");
+    System.out.println("메뉴: 1. Create | 2. Update | 3. Delete | 4. Exit");
     System.out.print("선택: ");
   }
 
