@@ -17,6 +17,7 @@ public class ProductClient {
   private static final String patternForMenu = "^[1-4]";
   private static final String patternForNum = "^[0-9]*$";
   private static final String patternForName = "^[a-zA-Z가-힣0-9]*$";
+  private boolean isRunning = true;
 
 
   public static void main(String[] args) {
@@ -32,7 +33,7 @@ public class ProductClient {
 
       System.out.println("서버에 연결되었습니다.");
 
-      while (true) {
+      while (isRunning) {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String responseJson = in.readLine();
 
@@ -67,7 +68,7 @@ public class ProductClient {
         } else if (menu == 3) {
           product = deleteMenu();
         } else if (menu == 4) {
-          break;
+          isRunning = false;
         } else {
           System.out.println("잘못된 선택입니다. 1 ~ 4의 번호를 입력해주세요.");
         }

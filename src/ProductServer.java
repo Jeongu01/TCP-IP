@@ -13,8 +13,9 @@ public class ProductServer {
 
   private static final int PORT = 8080;
   private static int productNumber = 0;
-  private static ArrayList<Product> productList = new ArrayList();
+  private final static ArrayList<Product> productList = new ArrayList();
   private final ObjectMapper mapper = new ObjectMapper();
+  private ServerSocket serverSocket;
 
   public static void main(String[] args) {
     new ProductServer().start();
@@ -24,7 +25,7 @@ public class ProductServer {
     ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     try {
-      ServerSocket serverSocket = new ServerSocket(PORT);
+      serverSocket = new ServerSocket(PORT);
       System.out.println("서버가 가동되었습니다. 포트번호 : " + PORT);
 
       while (true) {
@@ -34,14 +35,25 @@ public class ProductServer {
       }
     } catch (IOException e) {
       e.printStackTrace();
+    } finally {
+      stop();
     }
+  }
 
-
+  public void stop() {
+    try {
+      if (serverSocket != null && !serverSocket.isClosed()){
+        serverSocket.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    System.out.println("서버가 종료되었습니다.");
   }
 
   class SocketClient implements Runnable {
 
-    private Socket socket;
+    private final Socket socket;
     private String status;
 
     public SocketClient(Socket socket) {
@@ -70,12 +82,16 @@ public class ProductServer {
           System.out.println("요청을 기다리는 중...");
           BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
           String requestJson = in.readLine();
+          if (requestJson == null) {
+            System.out.println("클라이언트가 연결을 끊었습니다.");
+            break;
+          }
 
           Request request = mapper.readValue(requestJson, Request.class);
 
           int selectedMenu = request.getMenu();
           Product receivedProduct = request.getData();
-          System.out.println("포트번호 : " + socket.getPort() + ", IP주소 : " + socket.getLocalAddress() + "의 요청이 들어왔습니다.");
+          System.out.println("포트번호 : " + socket.getPort() + ", IP주소 : " + socket.getLocalAddress() + "에게 " + selectedMenu + "번 요청이 들어왔습니다.");
 
           if (selectedMenu == 1){
             saveProduct(receivedProduct);
@@ -99,6 +115,12 @@ public class ProductServer {
 
       } catch (IOException e) {
         e.printStackTrace();
+      } finally {
+        try {
+          socket.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
 
